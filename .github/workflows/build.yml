@@ -1,0 +1,28 @@
+name: Build and publish APK
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleFullDebug
+      - name: Rename APK
+        run: cp app/build/outputs/apk/full/debug/*.apk NuvioTV-Reshaped.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest build
+          files: NuvioTV-Reshaped.apk
